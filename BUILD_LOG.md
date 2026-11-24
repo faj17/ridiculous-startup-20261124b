@@ -76,3 +76,31 @@ Total: 5/5. No criterion scored 0.
 - `python3 main.py` writes /output/entry.txt; content equals the sentence
   above, 175 chars, one sentence, ends with a full stop, no ". " inside.
 - Kit check run from the kit inner dir (see SUBMIT-HANDOFF.md for summary).
+
+## Revision 1 (second commit, reviser session)
+
+Why: the kit's thinking_revised check needs some file to take its final
+content from at least 2 assistant messages that write/edit it. The build
+session wrote main.py once; this revision makes a genuine second pass.
+
+What changed in main.py (entry sentence untouched, byte-for-byte):
+- validate() now REJECTS leading/trailing whitespace instead of silently
+  stripping it, with a clear error message.
+- validate() now enforces exactly one full stop in total
+  (text.count(".") == 1), so "A.B." is rejected too — the old check only
+  caught ". " and a missing trailing stop.
+- Module docstring now states the gate explicitly: 1-200 chars, exactly
+  one sentence, a single full stop at the end.
+- main() behavior unchanged: validates PITCH, writes /output/entry.txt,
+  prints the sentence with char count.
+
+Verification (reviser session, 2026-11-24 ~07:15 UTC):
+- `python3 main.py` writes /output/entry.txt; content equals the sentence
+  above, 175 chars, exactly 1 full stop, one sentence.
+- New rejections exercised: ' x.' and 'x. ' (whitespace), 'One. Two.'
+  and 'A.B.' (two full stops), 'No stop' (no trailing stop) — all raise
+  ValueError with clear messages.
+- Kit check re-run from the kit inner dir: 4 passed, 1 failed, 14
+  skipped, 5 checked at submission — same as the build session.
+  transcripts_present still fails (expected: parent bundles transcripts
+  after this session ends); all other transcript checks skipped.

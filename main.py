@@ -6,6 +6,7 @@ arguments, so the fight over who said what is settled by a certified
 record. Absurd at first glance — a courtroom professional in the
 living room — yet the market is obvious: couples pay for proof.
 The script validates the line and drops it into /output/entry.txt.
+Gate: 1-200 chars, exactly one sentence, a single full stop at the end.
 """
 
 from pathlib import Path
@@ -24,14 +25,25 @@ MAX_CHARS = 200
 
 
 def validate(line: str) -> str:
-    """Strip and sanity-check the pitch; raise ValueError on bad input."""
-    text = line.strip()
+    """Check the pitch against the gate; raise ValueError on bad input.
+
+    The gate is strict: 1-200 chars, exactly one sentence — a single
+    full stop, at the end, with no '. ' inside — and no leading or
+    trailing whitespace. Bad input is rejected, never silently fixed.
+    """
+    text = line
+    if text != text.strip():
+        raise ValueError("pitch must not have leading/trailing whitespace")
     if not MIN_CHARS <= len(text) <= MAX_CHARS:
         raise ValueError(
             f"pitch must be {MIN_CHARS}-{MAX_CHARS} chars, got {len(text)}"
         )
     if not text.endswith("."):
         raise ValueError("pitch must end with a full stop")
+    if text.count(".") != 1:
+        raise ValueError(
+            f"pitch must contain exactly one full stop, got {text.count('.')}"
+        )
     if ". " in text:
         raise ValueError("pitch must be a single sentence (no '. ' inside)")
     return text
